@@ -6,6 +6,7 @@ namespace CursoMOD119.Models
 {
     public class Item
     {
+
         public int ID { get; set; }
 
         [Display(Name = "Name")]
@@ -23,5 +24,8 @@ namespace CursoMOD119.Models
 
         [Display(Name = "Discontinued")]
         public bool Discontinued { get; set; }
+
+        [Display(Name = "Sales")]
+        public ICollection<Sale> Sales { get; set; }
     }
 }
