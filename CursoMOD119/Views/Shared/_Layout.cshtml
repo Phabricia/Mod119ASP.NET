@@ -31,6 +31,12 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="StockMovements" asp-action="Index">Stock Movements</a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Clients" asp-action="Index">@SharedLocalizer["Clients"]</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Sales" asp-action="Index">@SharedLocalizer["Sales"]</a>
+                        </li>
                     </ul>
                     <partial name="_LoginPartial" />
                     <partial name="_SelectLanguagePartial" />

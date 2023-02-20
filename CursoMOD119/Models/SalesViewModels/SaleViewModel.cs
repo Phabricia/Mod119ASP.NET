@@ -1,9 +1,10 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations;
 
-namespace CursoMOD119.Models
+namespace CursoMOD119.Models.SalesViewModels
 {
-    public class Sale
+    public class SaleViewModel
     {
         public int ID { get; set; }
 
@@ -14,14 +15,10 @@ namespace CursoMOD119.Models
         [Column(TypeName = "money")]
         public decimal Amount { get; set; }
 
+        [Display(Name = "Client")]
         public int ClientID { get; set; }
 
-        
-        public Client Client { get; set; }
-        
         [Display(Name = "Items")]
-        public ICollection<Item> Items { get; set; }
-
-
+        public int[] ItemIDs { get; set; }
     }
 }
