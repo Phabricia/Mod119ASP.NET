@@ -24,12 +24,38 @@
             </div>
             <div class="form-group">
                 <label asp-for="ClientID" class="control-label"></label>
-                <select asp-for="ClientID" class ="form-control" asp-items="ViewBag.ClientID"></select>
+                <select asp-for="ClientID" class="form-control" asp-items="ViewBag.ClientID"></select>
             </div>
             <div class="form-group">
                 <label asp-for="ItemIDs" class="control-label"></label>
-                <select asp-for="ItemIDs" class="form-control" asp-items="ViewBag.ItemIDs"></select>
+                <select asp-for="ItemIDs" class="form-control selectpicker" asp-items="ViewBag.ItemIDs"></select>
             </div>
+
+            <div class="form-group">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>@Html.DisplayNameFor(model => model.SelectableItems.First().Name)</th>
+                            <th>@Html.DisplayNameFor(model => model.SelectableItems.First().Price)</th>
+                            <th>@Html.DisplayNameFor(model => model.SelectableItems.First().Selected)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (int i = 0; i < Model.SelectableItems.Count; i++)
+                        {
+                            <tr>
+                                <td>@Model.SelectableItems[i].Name</td>
+                                <td>@Model.SelectableItems[i].Price</td>
+                                <td><input asp-for="@Model.SelectableItems[i].Selected" /></td>
+                                <input type="hidden" asp-for="@Model.SelectableItems[i].ID" />
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+
+            </div>
+
+
             <div class="form-group">
                 <input type="submit" value="Create" class="btn btn-primary" />
             </div>
@@ -42,5 +68,15 @@
 </div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script type="text/javascript" on-content-loaded="true">
+        $('.selectpicker').selectpicker({
+            liveSearch: true,
+            style: '',
+            language: 'PT'
+        });
+    </script>
 }

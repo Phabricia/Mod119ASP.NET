@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using CursoMOD119.Data;
 using CursoMOD119.Models;
 using CursoMOD119.Models.SalesViewModels;
+using CursoMOD119.Models.ItemsViewModels;
 
 namespace CursoMOD119.Controllers
 {
@@ -52,7 +53,23 @@ namespace CursoMOD119.Controllers
         {
             ViewData["ClientID"] = new SelectList(_context.Client, "ID", "Name");
             ViewData["ItemIDs"] = new MultiSelectList(_context.Items, "ID", "Name");
-            return View();
+
+            var saleViewModel = new SaleViewModel();
+
+            var items = _context.Items.ToList();
+
+            saleViewModel.SelectableItems = items.Select(item => new SelectableItemViewModel
+                {
+                    ID = item.ID,
+                    Name = item.Name,
+                    Price = item.Price,
+                    Selected = false
+                })
+                .ToList();
+            
+
+
+            return View(saleViewModel);
         }
 
         // POST: Sales/Create
@@ -60,19 +77,22 @@ namespace CursoMOD119.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ID,SaleDate,Amount,ClientID, ItemIDs")] SaleViewModel saleViewModel)
+        public async Task<IActionResult> Create([Bind("ID,SaleDate,Amount,ClientID, ItemIDs, SelectableItems")] SaleViewModel saleViewModel)
         {
             if (ModelState.IsValid)
             {
                 List<Item> items = new List<Item>();
 
-                foreach (var itemID in saleViewModel.ItemIDs)
+                foreach (var selectableItem in saleViewModel.SelectableItems)
                 {
-                    Item? item = _context.Items.Find(itemID);
-
-                    if (item != null)
+                    if (selectableItem.Selected == true)
                     {
-                        items.Add(item);
+                        Item? item = _context.Items.Find(selectableItem.ID);
+
+                        if (item != null)
+                        {
+                            items.Add(item);
+                        }
                     }
                 }
 

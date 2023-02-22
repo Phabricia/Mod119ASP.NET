@@ -8,7 +8,7 @@ namespace CursoMOD119.Models
 
         public string Name { get; set; }
 
-        public DateTime Birthday { get; set; }
+        public DateTime Birthday { get; set; } = DateTime.Now;
 
         [DataType(DataType.EmailAddress)]
         public string Email { get; set; }

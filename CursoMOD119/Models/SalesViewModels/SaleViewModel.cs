@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
+using CursoMOD119.Models.ItemsViewModels;
 
 namespace CursoMOD119.Models.SalesViewModels
 {
@@ -19,6 +20,8 @@ namespace CursoMOD119.Models.SalesViewModels
         public int ClientID { get; set; }
 
         [Display(Name = "Items")]
-        public int[] ItemIDs { get; set; }
+        public int[]? ItemIDs { get; set; } = Array.Empty<int>();
+
+        public List<SelectableItemViewModel> SelectableItems { get; set; }
     }
 }
