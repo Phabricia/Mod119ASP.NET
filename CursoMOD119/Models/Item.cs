@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using CursoMOD119.Models.ItemsViewModels;
+using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -26,6 +27,38 @@ namespace CursoMOD119.Models
         public bool Discontinued { get; set; }
 
         [Display(Name = "Sales")]
-        public ICollection<Sale> Sales { get; set; }
+        public ICollection<Sale>? Sales { get; set; }
+
+
+        public static implicit operator SelectableItemViewModel(Item item)
+        {
+            if (item == null)
+            {
+                return null;
+            }
+
+            return new SelectableItemViewModel
+            {
+                ID = item.ID,
+                Name = item.Name,
+                Price = item.Price,
+                Selected = false
+            };
+        }
+
+        public static implicit operator Item(SelectableItemViewModel viewModel)
+        {
+            if (viewModel == null)
+            {
+                return null;
+            }
+
+            return new Item
+            {
+                ID = viewModel.ID,
+                Name = viewModel.Name,
+                Price = viewModel.Price
+            };
+        }
     }
 }

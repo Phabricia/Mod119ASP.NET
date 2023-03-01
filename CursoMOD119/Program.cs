@@ -55,6 +55,11 @@ builder.Services
     {
         options.DataAnnotationLocalizerProvider = (type, factory) =>
             factory.Create(typeof(Resource));
+    })
+    .AddNToastNotifyToastr(new NToastNotify.ToastrOptions
+    {
+        ProgressBar = true,
+        TimeOut = 5000
     });
 
 var app = builder.Build();
@@ -79,6 +84,8 @@ app.UseRouting();
 app.UseAuthorization();
 
 app.UseRequestLocalization(app.Services.GetRequiredService<IOptions<RequestLocalizationOptions>>().Value);
+
+app.UseNToastNotify();
 
 app.MapControllerRoute(
     name: "default",

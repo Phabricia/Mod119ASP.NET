@@ -20,11 +20,82 @@ namespace CursoMOD119.Controllers
         }
 
         // GET: Get all Items
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string sort, string discontinued)
         {
-              return _context.Items != null ? 
-                          View(await _context.Items.ToListAsync()) :
-                          Problem("Entity set 'ApplicationDbContext.Items'  is null.");
+            if (_context.Items == null)
+            {
+                Problem("Entity set 'ApplicationDbContext.Items'  is null.");
+            }
+
+            var itemsSql = from i in _context.Items select i;
+
+            switch (sort)
+            {
+                case "name_desc":
+                    itemsSql = itemsSql.OrderByDescending(x => x.Name);
+                    break;
+                case "name_asc":
+                    itemsSql = itemsSql.OrderBy(x => x.Name);
+                    break;
+                case "price_desc":
+                    itemsSql = itemsSql.OrderByDescending(x => x.Price);
+                    break;
+                case "price_asc":
+                    itemsSql = itemsSql.OrderBy(x => x.Price);
+                    break;
+
+                case "creationDate_asc":
+                    itemsSql = itemsSql.OrderBy(x => x.CreationDate);
+                    break;
+                case "creationDate_desc":
+                    itemsSql = itemsSql.OrderByDescending(x => x.CreationDate);
+                    break;
+
+                case "discontinued_asc":
+                    itemsSql = itemsSql.OrderBy(x => x.Discontinued);
+                    break;
+                case "discontinued_desc":
+                    itemsSql = itemsSql.OrderByDescending(x => x.Discontinued);
+                    break;
+            }
+
+            if (sort == "name_desc")
+            {
+                ViewData["NameSort"] = "name_asc";
+            } 
+            else
+            {
+                ViewData["NameSort"] = "name_desc";
+            }
+
+            if (sort == "price_desc")
+            {
+                ViewData["PriceSort"] = "price_asc";
+            }
+            else 
+            {
+                ViewData["PriceSort"] = "price_desc";
+            }
+
+            if (sort == "creationDate_desc")
+            {
+                ViewData["CreationDateSort"] = "creationDate_asc";
+            }
+            else
+            {
+                ViewData["CreationDateSort"] = "creationDate_desc";
+            }
+
+            if (sort == "discontinued_desc")
+            {
+                ViewData["DiscontinuedSort"] = "discontinued_asc";
+            }
+            else
+            {
+                ViewData["DiscontinuedSort"] = "discontinued_desc";
+            }
+
+            return View(itemsSql.ToList());
         }
 
         // GET: Get Available Items
@@ -122,7 +193,7 @@ namespace CursoMOD119.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ID,Name,Price,CreationDate,Discontinued")] Item item)
+        public async Task<IActionResult> Edit(int id, [Bind("ID,Name,Price,CreationDate,Discontinued,Sales")] Item item)
         {
             if (id != item.ID)
             {

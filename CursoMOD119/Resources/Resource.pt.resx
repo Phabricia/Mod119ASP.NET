@@ -129,6 +129,9 @@
   <data name="Edit" xml:space="preserve">
     <value>Editar</value>
   </data>
+  <data name="Edited Sale successfully" xml:space="preserve">
+    <value>Venda &lt;b&gt;{0}&lt;/b&gt; editada com sucesso.</value>
+  </data>
   <data name="Name" xml:space="preserve">
     <value>Nome</value>
   </data>
@@ -140,6 +143,9 @@
   </data>
   <data name="RequiredErrorMessage" xml:space="preserve">
     <value>O campo {0} tem de ser um número.</value>
+  </data>
+  <data name="Sale Edit" xml:space="preserve">
+    <value>Editar Venda</value>
   </data>
   <data name="Save" xml:space="preserve">
     <value>Guardar</value>

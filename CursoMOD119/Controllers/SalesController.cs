@@ -9,16 +9,23 @@ using CursoMOD119.Data;
 using CursoMOD119.Models;
 using CursoMOD119.Models.SalesViewModels;
 using CursoMOD119.Models.ItemsViewModels;
+using NToastNotify;
+using Microsoft.AspNetCore.Mvc.Localization;
 
 namespace CursoMOD119.Controllers
 {
     public class SalesController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly IToastNotification _toastNotification;
+        private readonly IHtmlLocalizer<Resource> _sharedLocalizer;
 
-        public SalesController(ApplicationDbContext context)
+        public SalesController(ApplicationDbContext context, IToastNotification toastNotification,
+            IHtmlLocalizer<Resource> sharedLocalizer)
         {
             _context = context;
+            _toastNotification = toastNotification;
+            _sharedLocalizer = sharedLocalizer;
         }
 
         // GET: Sales
@@ -58,16 +65,16 @@ namespace CursoMOD119.Controllers
 
             var items = _context.Items.ToList();
 
-            saleViewModel.SelectableItems = items.Select(item => new SelectableItemViewModel
-                {
-                    ID = item.ID,
-                    Name = item.Name,
-                    Price = item.Price,
-                    Selected = false
-                })
-                .ToList();
-            
+            //saleViewModel.SelectableItems = items.Select(item => new SelectableItemViewModel
+            //    {
+            //        ID = item.ID,
+            //        Name = item.Name,
+            //        Price = item.Price,
+            //        Selected = false
+            //    })
+            //    .ToList();
 
+            saleViewModel.SelectableItems = items.ConvertAll<SelectableItemViewModel>(i => i);
 
             return View(saleViewModel);
         }
@@ -95,13 +102,15 @@ namespace CursoMOD119.Controllers
                         }
                     }
                 }
+                Sale sale = saleViewModel;
+                sale.Items = items;
 
-                Sale sale = new Sale { 
-                    SaleDate = saleViewModel.SaleDate,
-                    Amount = saleViewModel.Amount,
-                    ClientID = saleViewModel.ClientID,
-                    Items = items
-                };
+                //Sale sale = new Sale { 
+                //    SaleDate = saleViewModel.SaleDate,
+                //    Amount = saleViewModel.Amount,
+                //    ClientID = saleViewModel.ClientID,
+                //    Items = items
+                //};
                 _context.Add(sale);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
@@ -126,8 +135,34 @@ namespace CursoMOD119.Controllers
             {
                 return NotFound();
             }
-            ViewData["ClientID"] = new SelectList(_context.Client, "ID", "ID", sale.ClientID);
-            return View(sale);
+
+
+            var allBDItems = _context.Items.ToList();
+
+            var selectableItems = allBDItems.Select(item => new SelectableItemViewModel
+            {
+                ID = item.ID,
+                Name = item.Name,
+                Price = item.Price,
+                Selected = sale.Items.Contains(item)
+            })
+            .ToList();
+
+            SaleViewModel saleViewModel = sale;
+            saleViewModel.SelectableItems = selectableItems;
+
+            //var saleViewModel = new SaleViewModel
+            //{
+            //    Amount = sale.Amount,
+            //    ID = sale.ID,
+            //    SaleDate = sale.SaleDate,
+            //    ClientID = sale.ClientID,
+            //    SelectableItems = selectableItems
+            //};
+
+
+            ViewData["ClientID"] = new SelectList(_context.Client, "ID", "Name", sale.ClientID);
+            return View(saleViewModel);
         }
 
         // POST: Sales/Edit/5
@@ -135,9 +170,9 @@ namespace CursoMOD119.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ID,SaleDate,Amount,ClientID")] Sale sale)
+        public async Task<IActionResult> Edit(int id, [Bind("ID,SaleDate,Amount,ClientID, SelectableItems")] SaleViewModel saleViewModel)    
         {
-            if (id != sale.ID)
+            if (id != saleViewModel.ID)
             {
                 return NotFound();
             }
@@ -146,12 +181,38 @@ namespace CursoMOD119.Controllers
             {
                 try
                 {
+                    var sale = await _context.Sales.Include(x => x.Items).FirstOrDefaultAsync(x => x.ID == saleViewModel.ID);
+                    
+                    if (sale == null)
+                    {
+                        return NotFound();
+                    }
+                    var items = new List<Item>();
+                    foreach (var itemId in saleViewModel.SelectableItems)
+                    {
+                        if (itemId.Selected)
+                        {
+                            var item = _context.Items.SingleOrDefault(i => i.ID == itemId.ID);
+                            if (item != null)
+                            {
+                                items.Add(item);
+                            }
+                        }
+                    }
+                    sale.Amount = saleViewModel.Amount;
+                    sale.SaleDate = saleViewModel.SaleDate;
+                    sale.ClientID = saleViewModel.ClientID;
+                    sale.Items = items;
+
                     _context.Update(sale);
                     await _context.SaveChangesAsync();
+                    _toastNotification.AddSuccessToastMessage(
+                        string.Format(_sharedLocalizer["Edited Sale successfully"].Value, sale.ID),
+                        new ToastrOptions { Title = _sharedLocalizer["Sale Edit"].Value });
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!SaleExists(sale.ID))
+                    if (!SaleExists(saleViewModel.ID))
                     {
                         return NotFound();
                     }
@@ -162,8 +223,8 @@ namespace CursoMOD119.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["ClientID"] = new SelectList(_context.Client, "ID", "ID", sale.ClientID);
-            return View(sale);
+            ViewData["ClientID"] = new SelectList(_context.Client, "ID", "Name", saleViewModel.ClientID);
+            return View(saleViewModel);
         }
 
         // GET: Sales/Delete/5

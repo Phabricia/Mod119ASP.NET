@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using CursoMOD119.Models.SalesViewModels;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CursoMOD119.Models
@@ -21,6 +22,44 @@ namespace CursoMOD119.Models
         
         [Display(Name = "Items")]
         public ICollection<Item> Items { get; set; }
+
+
+
+        public static implicit operator SaleViewModel(Sale sale)
+        {
+            if (sale == null)
+            {
+                return null;
+            }
+
+            return new SaleViewModel
+            {
+                ID = sale.ID,
+                SaleDate = sale.SaleDate,
+                Amount = sale.Amount,
+                ClientID = sale.ClientID
+            };
+        }
+
+
+        public static implicit operator Sale(SaleViewModel saleViewModel)
+        {
+            if (saleViewModel == null)
+            {
+                return null;
+            }
+
+            return new Sale
+            {
+                ID = saleViewModel.ID,
+                SaleDate = saleViewModel.SaleDate,
+                Amount = saleViewModel.Amount,
+                ClientID = saleViewModel.ClientID
+            };
+        }
+
+        
+
 
 
     }
