@@ -1,10 +1,13 @@
-﻿using CursoMOD119.Models;
+﻿using CursoMOD119.lib;
+using CursoMOD119.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 
 namespace CursoMOD119.Controllers
 {
+    [Authorize(Policy = AppConstants.APP_POLICY)]
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;

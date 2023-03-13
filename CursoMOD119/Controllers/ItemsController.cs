@@ -7,9 +7,13 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using CursoMOD119.Data;
 using CursoMOD119.Models;
+using CursoMOD119.lib;
+using Microsoft.AspNetCore.Authorization;
 
 namespace CursoMOD119.Controllers
 {
+    [Authorize(Policy = AppConstants.APP_POLICY)]//adicionado em todos os controllers
+
     public class ItemsController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -20,14 +24,23 @@ namespace CursoMOD119.Controllers
         }
 
         // GET: Get all Items
-        public async Task<IActionResult> Index(string sort, string discontinued)
+        public async Task<IActionResult> Index(string sort, string searchName, int? pageNumber)
         {
             if (_context.Items == null)
             {
                 Problem("Entity set 'ApplicationDbContext.Items'  is null.");
             }
 
+            
+            ViewData["SearchName"] = searchName;
+
             var itemsSql = from i in _context.Items select i;
+
+            
+            if (!string.IsNullOrEmpty(searchName))
+            {
+                itemsSql=itemsSql.Where(i => i.Name.Contains(searchName));
+            }
 
             switch (sort)
             {
@@ -95,7 +108,11 @@ namespace CursoMOD119.Controllers
                 ViewData["DiscontinuedSort"] = "discontinued_desc";
             }
 
-            return View(itemsSql.ToList());
+            int pageSize = 5;
+
+            var items= await PaginatedList<Item>.CreateAsync(itemsSql, pageNumber ?? 1, pageSize);
+
+            return View(items);
         }
 
         // GET: Get Available Items

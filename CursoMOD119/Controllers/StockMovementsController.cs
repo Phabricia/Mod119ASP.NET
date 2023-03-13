@@ -7,9 +7,12 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using CursoMOD119.Data;
 using CursoMOD119.Models;
+using CursoMOD119.lib;
+using Microsoft.AspNetCore.Authorization;
 
 namespace CursoMOD119.Controllers
 {
+    [Authorize(Policy = AppConstants.APP_POLICY)]
     public class StockMovementsController : Controller
     {
         private readonly ApplicationDbContext _context;
